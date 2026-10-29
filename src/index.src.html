@@ -1,0 +1,443 @@
+<title>Calendário de Prioridade da Dengue</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: uma coluna de leitura larga; barra de filtros fixa no topo; cada seção = uma pergunta sobre a decisão. */
+:root {
+  --bg: #f4f6f5;
+  --surface: #ffffff;
+  --surface-2: #eef2f0;
+  --ink: #14201b;
+  --ink-2: #47554f;
+  --ink-3: #74817b;
+  --rule: #dce3df;
+  --accent: #0b6e5f;
+  --accent-ink: #ffffff;
+  --accent-soft: #d9ede7;
+  --s1: #2a78d6;
+  --s2: #eb6834;
+  --critical: #d03b3b;
+  --hover: rgba(11, 110, 95, .08);
+  --shadow: 0 1px 2px rgba(20, 32, 27, .06), 0 8px 24px rgba(20, 32, 27, .06);
+  --f-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body: "IBM Plex Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --r: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1412; --surface: #161d1a; --surface-2: #1c2521; --ink: #e8eeeb; --ink-2: #b2beb8;
+    --ink-3: #85928c; --rule: #2a3530; --accent: #4fc3a9; --accent-ink: #0d1916; --accent-soft: #173a32;
+    --s1: #3987e5; --s2: #d95926; --critical: #e66767; --hover: rgba(79, 195, 169, .10);
+    --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px rgba(0, 0, 0, .25);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1412; --surface: #161d1a; --surface-2: #1c2521; --ink: #e8eeeb; --ink-2: #b2beb8;
+  --ink-3: #85928c; --rule: #2a3530; --accent: #4fc3a9; --accent-ink: #0d1916; --accent-soft: #173a32;
+  --s1: #3987e5; --s2: #d95926; --critical: #e66767; --hover: rgba(79, 195, 169, .10);
+  --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px rgba(0, 0, 0, .25);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 15px; line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--surface); }
+.wrap {
+  max-width: 1180px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+h1, h2, h3 { font-family: var(--f-display); font-weight: 700; text-wrap: balance; margin: 0; letter-spacing: -.01em; }
+h1 { font-size: clamp(1.75rem, 1.2rem + 2.4vw, 2.9rem); line-height: 1.08; }
+h2 { font-size: clamp(1.3rem, 1.1rem + .8vw, 1.7rem); line-height: 1.15; }
+h3 { font-size: 1.05rem; font-weight: 500; }
+p { margin: 0; max-width: 68ch; }
+a { color: var(--accent); }
+.eyebrow { font-family: var(--f-mono); font-size: .74rem; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
+.muted { color: var(--ink-2); }
+.small { font-size: .84rem; }
+.num { font-variant-numeric: tabular-nums; }
+.mono { font-family: var(--f-mono); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ---------- cabeçalho ---------- */
+header.top { padding-block: 36px 22px; display: grid; gap: 14px; }
+header.top .lede { font-size: 1.05rem; color: var(--ink-2); }
+.cidade-destaque { color: var(--accent); }
+.badge {
+  display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px;
+  font-size: .78rem; font-weight: 500; background: var(--accent-soft); color: var(--ink); border: 1px solid transparent;
+}
+.badge.off { background: transparent; border-color: var(--rule); color: var(--ink-2); }
+.badge svg { width: 14px; height: 14px; }
+
+/* ---------- barra de filtros ---------- */
+.filtros {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: var(--surface);
+  border-block: 1px solid var(--rule);
+}
+.filtros .wrap { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; padding-block: 10px; }
+.campo { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.campo > label, .campo > .rot { font-size: .78rem; color: var(--ink-3); font-family: var(--f-mono); text-transform: uppercase; letter-spacing: .06em; }
+select, input[type="number"], input[type="text"] {
+  font: inherit; font-size: .92rem; color: var(--ink); background: var(--surface-2); border: 1px solid var(--rule);
+  border-radius: 8px; padding: 6px 10px; min-width: 0;
+}
+.anos { display: flex; flex-wrap: wrap; gap: 4px; }
+.chip {
+  font: inherit; font-size: .8rem; font-variant-numeric: tabular-nums; padding: 4px 9px; border-radius: 999px;
+  border: 1px solid var(--rule); background: transparent; color: var(--ink-2); cursor: pointer;
+}
+.chip:hover { background: var(--hover); }
+.chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.chip:disabled { opacity: .35; cursor: not-allowed; }
+.btn {
+  font: inherit; font-size: .86rem; font-weight: 500; padding: 7px 14px; border-radius: 8px; cursor: pointer;
+  border: 1px solid var(--rule); background: var(--surface); color: var(--ink); display: inline-flex; align-items: center; gap: 6px;
+}
+.btn:hover { background: var(--hover); }
+.btn.primario { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.btn.primario:hover { filter: brightness(1.06); }
+.btn[aria-expanded="true"] { background: var(--accent-soft); }
+.presets { display: flex; gap: 6px; flex-wrap: wrap; }
+.espaco { flex: 1 1 0; }
+
+.ajustes { border-top: 1px solid var(--rule); }
+.ajustes .wrap { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px 32px; padding-block: 16px 18px; }
+.grupo h3 { font-size: .9rem; margin-bottom: 8px; display: flex; justify-content: space-between; gap: 8px; }
+.grupo h3 span { font-family: var(--f-mono); font-weight: 400; color: var(--ink-3); font-size: .8rem; }
+.slider { display: grid; grid-template-columns: 7.5em 1fr 3.4em; align-items: center; gap: 10px; font-size: .86rem; }
+.slider + .slider { margin-top: 4px; }
+.slider output { text-align: right; font-variant-numeric: tabular-nums; font-family: var(--f-mono); font-size: .84rem; }
+input[type="range"] { width: 100%; accent-color: var(--accent); min-width: 0; }
+.nota-ajuste { font-size: .8rem; color: var(--ink-3); margin-top: 8px; }
+
+/* ---------- seções ---------- */
+main { display: grid; gap: 18px; padding-block: 22px 48px; }
+section.bloco {
+  background: var(--surface); border: 1px solid var(--rule); border-radius: var(--r);
+  padding: clamp(18px, 2.6vw, 30px); display: grid; gap: 18px; min-width: 0;
+}
+.bloco-cab { display: grid; gap: 6px; }
+.bloco-cab p { color: var(--ink-2); }
+.duas { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 22px; }
+.duas > * { min-width: 0; }
+.rolagem { overflow-x: auto; min-width: 0; }
+.alerta {
+  display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: 8px;
+  background: var(--surface-2); border: 1px solid var(--rule); font-size: .9rem;
+}
+.alerta.erro { border-color: var(--critical); }
+.alerta svg { flex: none; width: 18px; height: 18px; margin-top: 2px; }
+
+/* resumo */
+.resumo { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 16px; }
+.metodo-card { border: 1px solid var(--rule); border-radius: 8px; padding: 16px 18px; display: grid; gap: 10px; align-content: start; }
+.metodo-card h3 { display: flex; align-items: center; gap: 8px; font-weight: 700; }
+.chave { width: 18px; height: 3px; border-radius: 2px; display: inline-block; }
+.top-lista { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.top-lista li { display: grid; grid-template-columns: 1.8em 1fr auto; align-items: baseline; gap: 8px; }
+.top-lista .pos { font-family: var(--f-mono); color: var(--ink-3); font-size: .85rem; }
+.top-lista .mes { font-weight: 600; }
+.top-lista .rk { font-family: var(--f-mono); font-size: .76rem; color: var(--ink-3); }
+.consenso { border-radius: 8px; padding: 16px 18px; background: var(--accent-soft); display: grid; gap: 8px; align-content: start; }
+.consenso strong { font-family: var(--f-display); font-size: 1.35rem; line-height: 1.2; }
+
+/* tabela matriz */
+table { border-collapse: separate; border-spacing: 2px; font-size: .88rem; }
+th { font-weight: 500; text-align: left; color: var(--ink-2); }
+.matriz th.col { text-align: center; vertical-align: bottom; padding: 4px 6px 8px; min-width: 8.5em; }
+.matriz th.col .peso { display: block; font-family: var(--f-mono); font-size: .74rem; color: var(--ink-3); font-weight: 400; }
+.matriz th.lin { padding-right: 10px; white-space: nowrap; }
+.matriz td { text-align: center; padding: 7px 8px; border-radius: 4px; font-variant-numeric: tabular-nums; font-family: var(--f-mono); font-size: .84rem; cursor: default; }
+.matriz td.sem { background: transparent; color: var(--ink-3); font-size: .78rem; }
+.matriz tr:hover th.lin { color: var(--ink); }
+.matriz td.maxcol { box-shadow: inset 0 0 0 2px var(--ink); }
+.legenda-ramp { display: flex; align-items: center; gap: 8px; font-size: .78rem; color: var(--ink-3); flex-wrap: wrap; }
+.legenda-ramp .barra { width: 120px; height: 8px; border-radius: 4px; }
+
+/* sigma */
+.sigma { border-spacing: 2px; }
+.sigma th { font-family: var(--f-mono); font-size: .72rem; font-weight: 400; color: var(--ink-3); text-align: center; padding: 2px; }
+.sigma th.lin { text-align: right; padding-right: 6px; }
+.sigma td { padding: 0; }
+.sigma button {
+  width: 100%; min-width: 34px; height: 30px; border: 0; border-radius: 3px; font: inherit; font-family: var(--f-mono);
+  font-size: .7rem; cursor: pointer; display: grid; place-items: center; padding: 0; position: relative;
+}
+.sigma button.diag { background: transparent; cursor: default; color: var(--ink-3); }
+.sigma button:hover:not(.diag) { outline: 2px solid var(--ink); outline-offset: -1px; z-index: 1; }
+.sigma button.sel { outline: 2px solid var(--accent); outline-offset: -1px; }
+.sigma button .veto { position: absolute; top: 1px; right: 2px; font-size: .62rem; line-height: 1; color: var(--critical); font-weight: 700; text-shadow: 0 0 2px var(--surface), 0 0 2px var(--surface); }
+.alternar { display: inline-flex; border: 1px solid var(--rule); border-radius: 8px; overflow: hidden; }
+.alternar button { font: inherit; font-size: .84rem; padding: 6px 12px; border: 0; background: transparent; color: var(--ink-2); cursor: pointer; display: inline-flex; gap: 6px; align-items: center; }
+.alternar button[aria-pressed="true"] { background: var(--surface-2); color: var(--ink); font-weight: 600; }
+.linha-ctrl { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; }
+
+/* par */
+.par { border: 1px solid var(--rule); border-radius: 8px; padding: 16px; display: grid; gap: 12px; align-content: start; min-width: 0; }
+.par h3 { font-weight: 700; }
+.par table { width: 100%; font-size: .84rem; border-spacing: 0; }
+.par th, .par td { padding: 6px 6px; border-bottom: 1px solid var(--rule); text-align: right; font-variant-numeric: tabular-nums; }
+.par th:first-child, .par td:first-child { text-align: left; }
+.par td.vt { color: var(--critical); font-weight: 600; }
+.sit { font-family: var(--f-mono); font-size: .8rem; padding: 1px 6px; border-radius: 4px; background: var(--surface-2); }
+.sit.neg { color: var(--critical); }
+.resultado-par { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.resultado-par div { background: var(--surface-2); border-radius: 6px; padding: 10px 12px; }
+.resultado-par b { display: block; font-size: 1.25rem; font-family: var(--f-display); }
+
+/* svg genérico */
+svg text { fill: var(--ink-2); font-family: var(--f-body); }
+svg .eixo { stroke: var(--rule); stroke-width: 1; }
+svg .grade { stroke: var(--rule); stroke-width: 1; opacity: .7; }
+svg .rot-mono { font-family: var(--f-mono); fill: var(--ink-3); }
+.grafico { width: 100%; height: auto; display: block; }
+.grafico.limitado { max-width: 780px; }
+.metodo-tit { display: flex; align-items: center; gap: 8px; font-weight: 700; margin-bottom: 6px; }
+.legenda { display: flex; gap: 16px; flex-wrap: wrap; font-size: .84rem; color: var(--ink-2); align-items: center; }
+.legenda span { display: inline-flex; align-items: center; gap: 6px; }
+
+/* cidades */
+.cal { border-spacing: 3px; }
+.cal th { font-family: var(--f-mono); font-size: .74rem; font-weight: 400; color: var(--ink-3); text-align: center; }
+.cal th.lin { text-align: left; font-family: var(--f-body); font-size: .9rem; color: var(--ink); font-weight: 600; padding-right: 12px; white-space: nowrap; }
+.cal th.lin small { display: block; font-weight: 400; color: var(--ink-3); font-size: .74rem; }
+.cal td { width: 54px; height: 42px; text-align: center; border-radius: 6px; font-family: var(--f-mono); font-size: .9rem; font-weight: 500; cursor: default; }
+.cal td.sem { background: transparent; border: 1px solid var(--rule); color: var(--ink-3); font-size: .7rem; font-weight: 400; }
+
+/* dados */
+.drop {
+  border: 1.5px dashed var(--rule); border-radius: 10px; padding: 22px; display: grid; gap: 10px; justify-items: start;
+  background: var(--surface-2); align-content: start;
+}
+.drop.ativo { border-color: var(--accent); background: var(--accent-soft); }
+.form-linha { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; }
+.form-linha .campo { flex-direction: column; align-items: flex-start; gap: 4px; }
+.url { font-family: var(--f-mono); font-size: .78rem; word-break: break-all; background: var(--surface-2); padding: 8px 10px; border-radius: 6px; color: var(--ink-2); user-select: all; }
+.passos { margin: 0; padding-left: 1.2em; display: grid; gap: 6px; max-width: 70ch; }
+details.metodo { border-top: 1px solid var(--rule); padding-top: 14px; }
+details.metodo summary { cursor: pointer; font-weight: 600; }
+details.metodo ul { margin: 10px 0 0; padding-left: 1.2em; display: grid; gap: 6px; max-width: 75ch; color: var(--ink-2); }
+
+/* tooltip */
+.tip {
+  position: fixed; z-index: 50; pointer-events: none; background: var(--surface); color: var(--ink); border: 1px solid var(--rule);
+  border-radius: 8px; padding: 9px 11px; font-size: .82rem; box-shadow: var(--shadow); max-width: 300px; line-height: 1.4;
+}
+.tip .t { font-weight: 600; margin-bottom: 4px; }
+.tip .r { display: flex; justify-content: space-between; gap: 14px; font-variant-numeric: tabular-nums; }
+.tip .r span:first-child { color: var(--ink-3); }
+.tip .r b { font-weight: 600; }
+
+footer { padding-block: 10px 40px; color: var(--ink-3); font-size: .82rem; display: grid; gap: 6px; }
+
+@media (max-width: 640px) {
+  .filtros { position: static; }
+  .slider { grid-template-columns: 6.5em 1fr 3em; }
+  .espaco { display: none; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .anim { transition: opacity .2s ease; }
+}
+</style>
+
+<header class="wrap top">
+  <span class="eyebrow">ELECTRE III e IV · priorização mensal · dados InfoDengue</span>
+  <h1 id="titulo">Em quais meses priorizar o combate à dengue em <span class="cidade-destaque">Belém</span>?</h1>
+  <p class="lede" id="lede"></p>
+  <div id="selo"></div>
+</header>
+
+<div class="filtros" id="filtros">
+  <div class="wrap">
+    <div class="campo">
+      <label for="sel-cidade">Cidade</label>
+      <select id="sel-cidade"></select>
+    </div>
+    <div class="campo">
+      <span class="rot" id="rot-anos">Anos</span>
+      <div class="anos" id="anos" role="group" aria-labelledby="rot-anos"></div>
+    </div>
+    <div class="presets" id="presets"></div>
+    <div class="espaco"></div>
+    <button class="btn" id="btn-ajustes" aria-expanded="false" aria-controls="painel-ajustes">
+      <svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><path d="M2 4h7M12 4h2M2 12h3M8 12h6M10.5 2v4M6.5 10v4" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>
+      Pesos e limiares
+    </button>
+  </div>
+  <div class="ajustes" id="painel-ajustes" hidden>
+    <div class="wrap">
+      <div class="grupo">
+        <h3>Pesos do ELECTRE III <span id="soma-pesos"></span></h3>
+        <div id="sl-pesos"></div>
+        <p class="nota-ajuste">O ELECTRE IV não usa pesos. Os pesos são divididos pela soma, então só a proporção entre eles importa.</p>
+      </div>
+      <div class="grupo">
+        <h3>Limiares <span>% da amplitude de cada critério</span></h3>
+        <div id="sl-limiares"></div>
+        <p class="nota-ajuste">q = indiferença, p = preferência estrita, v = veto. Valem para os dois métodos. O site mantém q ≤ p ≤ v.</p>
+      </div>
+      <div class="grupo" style="align-self:end; display:grid; gap:10px; justify-items:start">
+        <p class="small muted">Configuração do artigo: pesos 0,40 · 0,30 · 0,15 · 0,15 e limiares de 10 %, 30 % e 70 %.</p>
+        <button class="btn primario" id="btn-artigo">Voltar à configuração do artigo</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap" id="conteudo">
+
+  <section class="bloco" id="sec-resumo" aria-labelledby="h-resumo">
+    <div class="bloco-cab">
+      <span class="eyebrow">Resultado</span>
+      <h2 id="h-resumo">Meses de maior prioridade</h2>
+      <p id="txt-resumo"></p>
+    </div>
+    <div id="aviso-dados"></div>
+    <div class="resumo" id="resumo"></div>
+  </section>
+
+  <section class="bloco" aria-labelledby="h-slope">
+    <div class="bloco-cab">
+      <span class="eyebrow">Ranking de compromisso</span>
+      <h2 id="h-slope">Como cada mês muda de posição entre o ELECTRE III e o IV</h2>
+      <p>Posição pela média das duas destilações, como nos scripts. Linhas que cruzam mostram meses que dependem dos pesos. Passe o mouse sobre um mês para destacá-lo.</p>
+    </div>
+    <div class="rolagem"><svg id="slope" class="grafico limitado" role="img" aria-label="Posições dos meses no ELECTRE III e no ELECTRE IV"></svg></div>
+  </section>
+
+  <section class="bloco" aria-labelledby="h-matriz">
+    <div class="bloco-cab">
+      <span class="eyebrow">Matriz de decisão</span>
+      <h2 id="h-matriz">Cada critério aponta para um mês diferente</h2>
+      <p>Média semanal de cada critério em cada mês. A cor compara os meses dentro da mesma coluna; o contorno marca o maior valor de cada critério.</p>
+    </div>
+    <div class="rolagem"><table class="matriz" id="matriz"></table></div>
+    <div class="legenda-ramp" id="leg-matriz"></div>
+  </section>
+
+  <section class="bloco" aria-labelledby="h-series">
+    <div class="bloco-cab">
+      <span class="eyebrow">Semanas epidemiológicas</span>
+      <h2 id="h-series">O que a média mensal resume</h2>
+      <p>As semanas que entram na matriz, uma linha por critério. Com vários anos, as linhas verticais marcam a virada de ano.</p>
+    </div>
+    <div class="rolagem"><svg id="series" class="grafico" role="img" aria-label="Séries semanais dos quatro critérios"></svg></div>
+  </section>
+
+  <section class="bloco" aria-labelledby="h-destil">
+    <div class="bloco-cab">
+      <span class="eyebrow">Destilações</span>
+      <h2 id="h-destil">Onde a posição média esconde incomparabilidade</h2>
+      <p>Cada mês recebe uma classe na destilação descendente (●) e outra na ascendente (○). Quando as duas ficam longe, o mês é incomparável com parte dos outros e a posição média não descreve bem a situação dele.</p>
+    </div>
+    <div class="duas">
+      <div><h3 class="metodo-tit"><span class="chave" style="background:var(--s1)"></span> ELECTRE III</h3><div class="rolagem"><svg id="dumb-iii" class="grafico" role="img" aria-label="Destilações do ELECTRE III"></svg></div></div>
+      <div><h3 class="metodo-tit"><span class="chave" style="background:var(--s2)"></span> ELECTRE IV</h3><div class="rolagem"><svg id="dumb-iv" class="grafico" role="img" aria-label="Destilações do ELECTRE IV"></svg></div></div>
+    </div>
+  </section>
+
+  <section class="bloco" aria-labelledby="h-sigma">
+    <div class="bloco-cab">
+      <span class="eyebrow">Credibilidade σ(a, b)</span>
+      <h2 id="h-sigma">Quanto cada mês sobreclassifica os outros</h2>
+      <p>Linha = mês a, coluna = mês b. Quanto mais escura a célula, mais crível é dizer que a é pelo menos tão prioritário quanto b. <span style="color:var(--critical);font-weight:700">×</span> marca um veto. Clique numa célula para ver a conta.</p>
+    </div>
+    <div class="linha-ctrl">
+      <div class="alternar" id="alt-sigma" role="group" aria-label="Método da matriz de credibilidade"></div>
+      <div class="legenda-ramp" id="leg-sigma"></div>
+    </div>
+    <div class="duas">
+      <div class="rolagem"><table class="sigma" id="sigma"></table></div>
+      <div class="par" id="par" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <section class="bloco" aria-labelledby="h-grafo">
+    <div class="bloco-cab">
+      <span class="eyebrow">Pré-ordem final</span>
+      <h2 id="h-grafo">O grafo de sobreclassificação</h2>
+      <p>Uma seta de a para b significa que a é preferido a b nas duas destilações. Setas que se deduzem de outras foram omitidas. Meses na mesma coluna têm a mesma posição; passe o mouse para ver com quais meses cada um é incomparável.</p>
+    </div>
+    <div class="linha-ctrl">
+      <div class="alternar" id="alt-grafo" role="group" aria-label="Método do grafo"></div>
+      <div class="legenda" id="leg-grafo"></div>
+    </div>
+    <div class="rolagem"><svg id="grafo" class="grafico" role="img" aria-label="Grafo da pré-ordem final"></svg></div>
+  </section>
+
+  <section class="bloco" aria-labelledby="h-cidades">
+    <div class="bloco-cab">
+      <span class="eyebrow">Mesmo método, outras cidades</span>
+      <h2 id="h-cidades">Calendário de prioridade por cidade</h2>
+      <p id="txt-cidades">Posição de cada mês em cada cidade, com o mesmo período, pesos e limiares escolhidos no topo. Quanto mais escura a célula, mais prioritário o mês.</p>
+    </div>
+    <div class="linha-ctrl">
+      <div class="alternar" id="alt-cidades" role="group" aria-label="Método do calendário"></div>
+      <div class="legenda-ramp" id="leg-cidades"></div>
+    </div>
+    <div class="rolagem"><table class="cal" id="cal"></table></div>
+  </section>
+
+  <section class="bloco" id="sec-dados" aria-labelledby="h-dados">
+    <div class="bloco-cab">
+      <span class="eyebrow">Dados</span>
+      <h2 id="h-dados">Usar outra cidade</h2>
+      <p>Qualquer CSV do InfoDengue (endpoint <span class="mono">alertcity</span>) funciona, porque todos têm as mesmas colunas. O arquivo é lido só no seu navegador e não é enviado a lugar nenhum.</p>
+    </div>
+    <div class="duas">
+      <div class="drop" id="drop">
+        <h3 style="font-weight:700">1. Enviar um CSV</h3>
+        <p class="small muted">Arraste o arquivo para cá ou escolha no computador. Colunas obrigatórias: data_iniSE, SE, casos_est, Rt, umidmed, tempmed.</p>
+        <label class="btn primario" for="arquivo">Escolher arquivo</label>
+        <input type="file" id="arquivo" accept=".csv,.json,text/csv,application/json" hidden>
+        <div id="msg-arquivo" class="small"></div>
+      </div>
+      <div style="display:grid; gap:12px; align-content:start">
+        <h3 style="font-weight:700">2. Baixar do InfoDengue</h3>
+        <div class="form-linha">
+          <div class="campo"><label for="sel-capital">Capital</label><select id="sel-capital"></select></div>
+          <div class="campo"><label for="inp-geocode">Código IBGE</label><input type="text" id="inp-geocode" inputmode="numeric" size="9"></div>
+          <div class="campo"><label for="inp-ano1">De</label><input type="number" id="inp-ano1" min="2010" max="2026" value="2023" style="width:6em"></div>
+          <div class="campo"><label for="inp-ano2">Até</label><input type="number" id="inp-ano2" min="2010" max="2026" value="2025" style="width:6em"></div>
+        </div>
+        <div class="url" id="url-api"></div>
+        <div class="form-linha">
+          <a class="btn primario" id="lnk-api" href="#" target="_blank" rel="noopener">Abrir o download no InfoDengue</a>
+          <button class="btn" id="btn-copiar" type="button">Copiar endereço</button>
+        </div>
+        <p class="small muted">O link baixa o CSV direto do InfoDengue. Depois, envie o arquivo no passo 1. Para outro município, digite o código IBGE de 7 dígitos.</p>
+      </div>
+    </div>
+    <details class="metodo">
+      <summary>Como o site calcula</summary>
+      <ul>
+        <li>As contas são uma tradução direta dos scripts Python do artigo (<span class="mono">dados_dengue.py</span>, <span class="mono">electre_comum.py</span>, <span class="mono">electre_iii.py</span>, <span class="mono">electre_iv.py</span>). A tradução foi testada contra o Python em 17 combinações de cidade e período: matrizes, credibilidades, destilações e pré-ordens saíram idênticas.</li>
+        <li>Cada mês entra na matriz pela média semanal de cada critério, reunindo todos os anos marcados. A semana 01 que começa em dezembro vai para janeiro do ano seguinte.</li>
+        <li>Todos os critérios são de maximização. Os limiares q, p e v são frações da amplitude de cada critério na matriz atual, por isso se ajustam a cada cidade e período.</li>
+        <li>Destilação com s(λ) = 0,30 − 0,15λ. A posição de compromisso é a média das classes descendente e ascendente; a pré-ordem final usa a interseção das duas.</li>
+        <li>O ELECTRE IV usa cinco relações aninhadas (S1 a S5) com credibilidades 1,00, 0,80, 0,60, 0,40 e 0,20; um veto anula a relação.</li>
+        <li>Semanas sem umidade ou temperatura (2017 e fim de 2020 nos arquivos do InfoDengue) ficam fora da média daquele critério. O script Python original pararia com erro nesses casos.</li>
+      </ul>
+    </details>
+  </section>
+</main>
+
+<footer class="wrap">
+  <span>Dados: InfoDengue (Fiocruz e parceiros), endpoint alertcity. Belém de 2015 até a semana 40 de 2026; Manaus e Macapá de 2015 a 2025.</span>
+  <span>Métodos: Roy (1978) para o ELECTRE III; Roy e Hugonnier (1982) para o ELECTRE IV.</span>
+</footer>
+
+<div class="tip" id="tip" hidden></div>
+
+<script>/*ENGINE*/</script>
+<script>window.DADOS = /*DATA*/;</script>
+<script>/*APP*/</script>
