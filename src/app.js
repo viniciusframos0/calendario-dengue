@@ -54,7 +54,7 @@
   const PADRAO = { pesos: E.PESOS_PADRAO.slice(), fr: Object.assign({}, E.FRACOES_PADRAO) };
   const state = {
     cidade: "belem",
-    anos: [2025],
+    anos: [2023, 2024, 2025, 2026],
     pesos: PADRAO.pesos.slice(),
     fr: Object.assign({}, PADRAO.fr),
     metSigma: "iii", metGrafo: "iii", metCid: "iii",
@@ -201,8 +201,8 @@
   function presetsDe(c) {
     const ps = [];
     if (c.id === "belem") {
-      ps.push(["2025 · artigo", [2025]]);
-      ps.push(["2023–2026 · histórico", [2023, 2024, 2025, 2026]]);
+      ps.push(["2023–2026 · artigo", [2023, 2024, 2025, 2026]]);
+      ps.push(["2025 · versão preliminar", [2025]]);
     } else {
       const ult = c.completos[c.completos.length - 1];
       if (ult) ps.push([String(ult), [ult]]);
@@ -344,8 +344,8 @@
     const b = document.createElement("span");
     const padrao = ehPadrao();
     let texto, ok = true;
-    if (padrao && state.cidade === "belem" && mesmoConj(state.anos, [2025])) texto = "Configuração do artigo · mesmos resultados dos scripts Python";
-    else if (padrao && state.cidade === "belem" && mesmoConj(state.anos, [2023, 2024, 2025, 2026])) texto = "Configuração da proposta 2027 (série histórica) · mesmos resultados dos scripts";
+    if (padrao && state.cidade === "belem" && mesmoConj(state.anos, [2023, 2024, 2025, 2026])) texto = "Configuração do artigo · mesmos resultados das Tabelas 3, 4 e 5";
+    else if (padrao && state.cidade === "belem" && mesmoConj(state.anos, [2025])) texto = "Recorte de 2025 · versão preliminar do artigo";
     else if (padrao) texto = "Pesos e limiares do artigo aplicados a outro recorte";
     else { texto = "Pesos ou limiares alterados em relação ao artigo"; ok = false; }
     b.className = "badge" + (ok ? "" : " off");
@@ -383,7 +383,7 @@
         ultimaPos = r[m].posicao[i];
         const b = document.createElement("span"); b.className = "mes"; b.textContent = MESES[i];
         const d = document.createElement("span"); d.className = "rk";
-        d.textContent = "desc " + r[m].ranksDesc[i] + " · asc " + r[m].ranksAsc[i];
+        d.textContent = "desc " + r[m].ranksDesc[i] + " · asc " + r[m].ranksAsc[i] + " · mediana " + fmt(r[m].mediano[i], 2);
         li.append(a, b, d); ul.appendChild(li);
       }
       const ult = Math.max(...r[m].posicao);
@@ -478,8 +478,8 @@
       const foco = (ev) => {
         grupos.forEach((o, k) => { o.style.opacity = k === i ? 1 : 0.18; });
         mostrarTip(ev, MESES[i], [
-          ["ELECTRE III", r.iii.posicao[i] + "º (desc " + r.iii.ranksDesc[i] + ", asc " + r.iii.ranksAsc[i] + ")"],
-          ["ELECTRE IV", r.iv.posicao[i] + "º (desc " + r.iv.ranksDesc[i] + ", asc " + r.iv.ranksAsc[i] + ")"],
+          ["ELECTRE III", r.iii.posicao[i] + "º · mediana " + fmt(r.iii.mediano[i], 2) + " (desc " + r.iii.ranksDesc[i] + ", asc " + r.iii.ranksAsc[i] + ")"],
+          ["ELECTRE IV", r.iv.posicao[i] + "º · mediana " + fmt(r.iv.mediano[i], 2) + " (desc " + r.iv.ranksDesc[i] + ", asc " + r.iv.ranksAsc[i] + ")"],
         ]);
       };
       g.addEventListener("pointermove", foco);
@@ -658,7 +658,7 @@
       ligarTip(g, (ev) => mostrarTip(ev, MESES[i] + " · " + METODOS[m], [
         ["Destilação descendente", "classe " + d],
         ["Destilação ascendente", "classe " + a],
-        ["Posição de compromisso", r.posicao[i] + "º"],
+        ["Mediana", fmt(r.mediano[i], 2) + " (" + r.posicao[i] + "º)"],
       ], incomp.length ? "Incomparável com: " + incomp.join(", ") : "Comparável com todos os meses"));
     });
   }
@@ -754,12 +754,36 @@
       bloco("ELECTRE IV · σ(a, b)", fmt(r.iv.sigma[i][k], 2), rot4(i, k) + " · σ(b, a) = " + fmt(r.iv.sigma[k][i], 2))
     );
     const expl = document.createElement("p"); expl.className = "small";
-    const vetos = CRIT.filter((_, j) => r.iii.dj[i][k][j] >= 1).map((c) => ROT_CURTO[c].toLowerCase());
-    const final = r.iii.relacao[i][k];
-    const relTxt = { P: "a é preferido a b", p: "b é preferido a a", I: "a e b são indiferentes", R: "a e b são incomparáveis" };
-    expl.textContent =
-      (vetos.length ? "Veto em " + lista(vetos) + ": b supera a por mais que v, e a credibilidade de “a sobreclassifica b” cai a zero. " : "") +
-      "Na pré-ordem final do III, " + relTxt[final] + "; no IV, " + relTxt[r.iv.relacao[i][k]] + ".";
+    const A = MESES[i], B = MESES[k];
+    const nomeMin = (c) => (c === "Rt" ? "Rt" : ROT_CURTO[c].toLowerCase());
+    const vetosDe = (x, y) => CRIT.filter((_, j) => r.iii.dj[x][y][j] >= 1).map(nomeMin);
+    const imp = (v) => (v.length > 1 ? " impedem " : " impede ");
+    const vAB = vetosDe(i, k), vBA = vetosDe(k, i);
+    const Cab = r.iii.C[i][k];
+    const final = r.iii.relacao[i][k], final4 = r.iv.relacao[i][k];
+    const relTxt = { P: A + " é preferido a " + B, p: B + " é preferido a " + A, I: A + " e " + B + " são indiferentes", R: A + " e " + B + " são incomparáveis" };
+    const partes = [];
+    if (vAB.length && vBA.length) {
+      partes.push("Veto nos dois sentidos: " + lista(vAB) + imp(vAB) + A + " de sobreclassificar " + B + ", e " + lista(vBA) + imp(vBA) + B + " de sobreclassificar " + A + ". No par direto, os dois meses são incomparáveis.");
+    } else if (vAB.length) {
+      partes.push("Veto em " + lista(vAB) + ": " + B + " supera " + A + " por mais que v, e σ(a, b) cai a zero.");
+    } else if (vBA.length) {
+      partes.push("Não há veto contra " + A + ". No sentido inverso, " + lista(vBA) + " veta " + B + ", e σ(b, a) = 0.");
+    }
+    const reduz = CRIT.map((c, j) => ({ c, d: r.iii.dj[i][k][j] })).filter((x) => x.d < 1 && x.d > Cab + 1e-12);
+    if (reduz.length) {
+      partes.push("No III, a discordância também reduz σ(a, b) sem anulá-lo: " +
+        reduz.map((x) => nomeMin(x.c) + " (d = " + fmt(x.d, 2) + ", multiplica por " + fmt((1 - x.d) / (1 - Cab), 2) + ")").join("; ") + ".");
+    }
+    if (r.iv.situ[i][k].includes("V-")) partes.push("No IV, o V− anula a relação de uma vez, sem redução gradual.");
+    partes.push("Na pré-ordem final do III, " + relTxt[final] + "; no IV, " + relTxt[final4] + ".");
+    const semPar = (rel, s1, s2) => (rel === "P" && s1 < 1e-12) || (rel === "p" && s2 < 1e-12);
+    const s3 = semPar(final, r.iii.sigma[i][k], r.iii.sigma[k][i]), s4 = semPar(final4, r.iv.sigma[i][k], r.iv.sigma[k][i]);
+    if (s3 || s4) {
+      partes.push((s3 && s4 ? "Nos dois métodos" : s3 ? "No III" : "No IV") +
+        ", essa ordem vem das destilações, que comparam cada mês com todos os outros, e não do par direto.");
+    }
+    expl.textContent = partes.join(" ");
     const inv = document.createElement("button"); inv.className = "btn"; inv.type = "button"; inv.textContent = "Inverter o par (b × a)";
     inv.addEventListener("click", () => { state.par = [k, i]; renderSigma(res); });
     const leg = document.createElement("p"); leg.className = "small muted";
@@ -891,6 +915,7 @@
         ligarTip(td, (ev) => mostrarTip(ev, c.nome + " · " + MESES[i], [
           [METODOS[m], p + "º de " + K],
           ["Destilações", "desc " + rr.ranksDesc[i] + " · asc " + rr.ranksAsc[i]],
+          ["Mediana", fmt(rr.mediano[i], 2)],
           ["Casos (média sem.)", fmt(g[0], 1)],
           ["Rt", fmt(g[1], 2)],
           ["Umidade", fmtV("umidmed", g[2])],

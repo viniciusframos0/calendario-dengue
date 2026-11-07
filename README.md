@@ -11,6 +11,7 @@ Abra o site em: **https://viniciusframos0.github.io/calendario-dengue/**
 - ELECTRE III com pesos ajustáveis (padrão 0,40 · 0,30 · 0,15 · 0,15); ELECTRE IV sem pesos.
 - Limiares q, p e v como frações da amplitude de cada critério (padrão 10 %, 30 % e 70 %).
 - Destilações descendente e ascendente com s(λ) = 0,30 − 0,15λ e pré-ordem final.
+- Abre na configuração do artigo: Belém, 197 semanas da SE 202301 à SE 202640 (2023–2026). O recorte de 2025 da versão preliminar continua disponível.
 - Dados embutidos: Belém (2015 até a semana 40 de 2026), Manaus e Macapá (2015–2025).
 - Aceita o CSV de qualquer município baixado do endpoint `alertcity` do InfoDengue. O arquivo é lido apenas no navegador.
 

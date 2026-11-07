@@ -309,7 +309,7 @@ footer { padding-block: 10px 40px; color: var(--ink-3); font-size: .82rem; displ
     <div class="bloco-cab">
       <span class="eyebrow">Ranking de compromisso</span>
       <h2 id="h-slope">Como cada mês muda de posição entre o ELECTRE III e o IV</h2>
-      <p>Posição pela média das duas destilações, como nos scripts. Linhas que cruzam mostram meses que dependem dos pesos. Passe o mouse sobre um mês para destacá-lo.</p>
+      <p>Posição pela mediana dos postos descendente e ascendente, como nas Tabelas 4 e 5 do artigo. Linhas que cruzam mostram meses que dependem dos pesos. Passe o mouse sobre um mês para destacá-lo.</p>
     </div>
     <div class="rolagem"><svg id="slope" class="grafico limitado" role="img" aria-label="Posições dos meses no ELECTRE III e no ELECTRE IV"></svg></div>
   </section>
@@ -336,8 +336,8 @@ footer { padding-block: 10px 40px; color: var(--ink-3); font-size: .82rem; displ
   <section class="bloco" aria-labelledby="h-destil">
     <div class="bloco-cab">
       <span class="eyebrow">Destilações</span>
-      <h2 id="h-destil">Onde a posição média esconde incomparabilidade</h2>
-      <p>Cada mês recebe uma classe na destilação descendente (●) e outra na ascendente (○). Quando as duas ficam longe, o mês é incomparável com parte dos outros e a posição média não descreve bem a situação dele.</p>
+      <h2 id="h-destil">Onde a mediana esconde incomparabilidade</h2>
+      <p>Cada mês recebe uma classe na destilação descendente (●) e outra na ascendente (○). Quando as duas ficam longe, o mês é incomparável com parte dos outros, e a mediana no meio da tabela registra esse conflito, não uma prioridade intermediária.</p>
     </div>
     <div class="duas">
       <div><h3 class="metodo-tit"><span class="chave" style="background:var(--s1)"></span> ELECTRE III</h3><div class="rolagem"><svg id="dumb-iii" class="grafico" role="img" aria-label="Destilações do ELECTRE III"></svg></div></div>
@@ -421,10 +421,11 @@ footer { padding-block: 10px 40px; color: var(--ink-3); font-size: .82rem; displ
       <summary>Como o site calcula</summary>
       <ul>
         <li>As contas são uma tradução direta dos scripts Python do artigo (<span class="mono">dados_dengue.py</span>, <span class="mono">electre_comum.py</span>, <span class="mono">electre_iii.py</span>, <span class="mono">electre_iv.py</span>). A tradução foi testada contra o Python em 17 combinações de cidade e período: matrizes, credibilidades, destilações e pré-ordens saíram idênticas.</li>
-        <li>Cada mês entra na matriz pela média semanal de cada critério, reunindo todos os anos marcados. A semana 01 que começa em dezembro vai para janeiro do ano seguinte.</li>
+        <li>A configuração do artigo usa as 197 semanas de Belém da SE 202301 (início em 01/01/2023) à SE 202640 (início em 04/10/2026). Janeiro a setembro têm os quatro anos; outubro de 2026 entra com uma semana; novembro e dezembro usam 2023 a 2025.</li>
+        <li>Cada mês entra na matriz pela média semanal de cada critério, reunindo todos os anos marcados. A semana 01 que começa em dezembro vai para janeiro do ano seguinte, como as semanas 202401 e 202501.</li>
         <li>Todos os critérios são de maximização. Os limiares q, p e v são frações da amplitude de cada critério na matriz atual, por isso se ajustam a cada cidade e período.</li>
-        <li>Destilação com s(λ) = 0,30 − 0,15λ. A posição de compromisso é a média das classes descendente e ascendente; a pré-ordem final usa a interseção das duas.</li>
-        <li>O ELECTRE IV usa cinco relações aninhadas (S1 a S5) com credibilidades 1,00, 0,80, 0,60, 0,40 e 0,20; um veto anula a relação.</li>
+        <li>Destilação com s(λ) = 0,30 − 0,15λ. A mediana é a média dos postos descendente e ascendente; a posição mostrada no site numera os meses pela mediana. A pré-ordem final usa a interseção das duas destilações.</li>
+        <li>Os dois métodos têm veto. No ELECTRE III ele é gradual: a discordância entre p e v reduz a credibilidade, e só a partir de v ela zera. O ELECTRE IV usa cinco relações aninhadas (S1 a S5) com credibilidades 1,00, 0,80, 0,60, 0,40 e 0,20, e um veto anula a relação de uma vez.</li>
         <li>Semanas sem umidade ou temperatura (2017 e fim de 2020 nos arquivos do InfoDengue) ficam fora da média daquele critério. O script Python original pararia com erro nesses casos.</li>
       </ul>
     </details>
