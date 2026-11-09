@@ -136,10 +136,41 @@ section.bloco {
 }
 .bloco-cab { display: grid; gap: 6px; }
 .bloco-cab p { color: var(--ink-2); }
-figure.acoes { margin: 0; display: grid; gap: 8px; max-width: 980px; }
-figure.acoes a { display: block; border: 1px solid var(--rule); border-radius: 8px; overflow: hidden; background: #fff; }
-figure.acoes img { display: block; width: 100%; height: auto; }
-figure.acoes figcaption { font-size: .8rem; color: var(--ink-3); }
+.acoes-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: clamp(18px, 3vw, 36px); align-items: center;
+  background: #fff; color: #14233a; border: 1px solid var(--rule); border-radius: 12px; padding: clamp(14px, 2.4vw, 28px); }
+@media (max-width: 760px) { .acoes-grid { grid-template-columns: 1fr; } }
+.alvo-wrap { container-type: inline-size; max-width: 560px; width: 100%; justify-self: center; }
+.alvo { position: relative; width: 100%; aspect-ratio: 1; font-family: var(--f-display); }
+.alvo .c { position: absolute; border-radius: 50%; border-style: solid; }
+.alvo .c1 { inset: 0; border-width: .9cqw; border-color: #2e8b3a; background: radial-gradient(circle at 50% 55%, #e4f5dc 55%, #c9eabd 100%); }
+.alvo .c2 { left: 14%; top: 22%; width: 72%; height: 72%; border-width: .7cqw; border-color: #1f6fb2; background: radial-gradient(circle at 50% 50%, #d8eefb 50%, #b5dcf5 100%); }
+.alvo .c3 { left: 29%; top: 42%; width: 42%; height: 42%; border-width: .7cqw; border-color: #e0662a; background: radial-gradient(circle at 50% 45%, #fde0c6 40%, #f8b98a 100%); }
+.alvo .bl { position: absolute; left: 50%; transform: translateX(-50%); display: grid; justify-items: center; gap: .8cqw; text-align: center; width: 70%; }
+.alvo .tit { display: flex; align-items: center; gap: 1.2cqw; font-weight: 800; font-size: 4cqw; line-height: 1.05; color: #14233a; }
+.alvo .tit svg { width: 4.6cqw; height: 4.6cqw; flex: none; }
+.alvo .sub { font-weight: 700; font-size: 2.7cqw; line-height: 1.1; color: #14233a; }
+.alvo .pill { color: #fff; font-weight: 700; font-size: 2.6cqw; padding: .9cqw 3cqw; border-radius: 99px; white-space: nowrap; }
+.alvo .verde { background: #2e8b3a; } .alvo .azul { background: #1f6fb2; } .alvo .laranja { background: #e0662a; }
+.alvo .it { position: absolute; display: grid; justify-items: center; gap: .6cqw; text-align: center; font-family: var(--f-body); font-weight: 600; font-size: 1.85cqw; line-height: 1.15; color: #14233a; }
+.alvo .it svg { width: 7cqw; height: 7cqw; }
+.alvo .div { position: absolute; left: 50%; top: 61%; height: 16%; border-left: .35cqw solid #e0662a; }
+@container (max-width: 420px) {
+  .alvo .it span { display: none; }
+  .alvo .it svg { width: 8.5cqw; height: 8.5cqw; }
+  .alvo .pill { font-size: 3.1cqw; }
+  .alvo .sub { font-size: 3.2cqw; }
+  .alvo .tit { font-size: 4.6cqw; }
+}
+.acoes-lado { display: grid; gap: 16px; font-size: .95rem; }
+.acoes-lado h3 { font-family: var(--f-display); font-size: clamp(1.25rem, 2.2vw, 1.65rem); line-height: 1.15; color: #14233a; }
+.acoes-lado .intro { color: #47554f; border-block: 1px solid #c9d3dc; padding-block: 10px; }
+.acoes-lado .tier { display: grid; gap: 6px; }
+.acoes-lado .tier .pill { justify-self: start; color: #fff; font-weight: 700; padding: 3px 14px; border-radius: 99px; }
+.acoes-lado .tier .pill.laranja { background: #e0662a; } .acoes-lado .tier .pill.azul { background: #1f6fb2; } .acoes-lado .tier .pill.verde { background: #2e8b3a; }
+.acoes-lado .linha { display: grid; grid-template-columns: 20px 1fr; gap: 8px; align-items: start; }
+.acoes-lado .linha svg { width: 20px; height: 20px; margin-top: 2px; }
+.acoes-lado .pq { font-size: .84rem; color: #5b6770; margin-left: 28px; }
+.nota-acoes { font-size: .82rem; color: var(--ink-3); }
 .duas { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 22px; }
 .duas > * { min-width: 0; }
 .rolagem { overflow-x: auto; min-width: 0; }
@@ -322,14 +353,13 @@ footer { padding-block: 10px 40px; color: var(--ink-3); font-size: .82rem; displ
     <div class="bloco-cab">
       <span class="eyebrow">Do resultado à ação</span>
       <h2 id="h-acoes">Como a gestão municipal pode organizar o ano</h2>
-      <p>Os rankings viram três momentos de ação para Belém: prevenção em janeiro, quando o Rt indica que a transmissão está acelerando; reforço da assistência em fevereiro e março, quando os casos chegam ao máximo; e manutenção com comunicação contínua no restante do ano.</p>
+      <p id="txt-acoes"></p>
     </div>
-    <figure class="acoes">
-      <a href="img/acoes-belem.jpg" target="_blank" rel="noopener" title="Abrir a imagem em tamanho original">
-        <img src="img/acoes-belem.jpg" width="1536" height="1024" loading="lazy" alt="Organização dos esforços da gestão municipal contra a dengue em três círculos. No centro, janeiro: esforço na prevenção, com fumacê (nebulização espacial) e atuação reforçada dos Agentes de Endemias. No círculo do meio, fevereiro e março: reforço da assistência, com ampliação da oferta de leitos e aumento do estoque de medicamentos. No círculo externo, abril a dezembro: manutenção e comunicação, com comunicação contínua sobre prevenção e ações de rotina nas demais áreas.">
-      </a>
-      <figcaption>Proposta baseada nos resultados do ELECTRE III e IV para Belém (2023–2026). Toque na imagem para ampliar.</figcaption>
-    </figure>
+    <div class="acoes-grid">
+      <div class="alvo-wrap"><div class="alvo" id="alvo" role="img"></div></div>
+      <div class="acoes-lado" id="acoes-lado"></div>
+    </div>
+    <p class="nota-acoes" id="regra-acoes"></p>
   </section>
 
   <section class="bloco" aria-labelledby="h-slope">
@@ -1197,6 +1227,93 @@ footer { padding-block: 10px 40px; color: var(--ink-3); font-size: .82rem; displ
     selo.appendChild(b);
   }
 
+  /* ---------------- do resultado à ação ---------------- */
+  const ICONE = {
+    cal: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 17.5h.01M12 17.5h.01" stroke-width="2.6"/></svg>',
+    fumace: '<svg viewBox="0 0 32 24" fill="none" stroke="#14233a" stroke-width="1.8" stroke-linejoin="round"><path d="M2 7h12v10H2zM14 10h4l3 3v4h-7z" fill="#14233a"/><circle cx="6" cy="18.5" r="2.3" fill="#fff"/><circle cx="17" cy="18.5" r="2.3" fill="#fff"/><path d="M23 9.5a2.2 2.2 0 0 1 3-2 2.6 2.6 0 0 1 4.6 1.6 2 2 0 0 1-.8 3.9H23.6a2 2 0 0 1-.6-3.5z" fill="#fff"/></svg>',
+    agente: '<svg viewBox="0 0 28 26" fill="none" stroke="#14233a" stroke-width="1.8"><path d="M6 6.5a5 5 0 0 1 10 0z" fill="#14233a"/><circle cx="11" cy="9.5" r="3.6" fill="#f3c9a4"/><path d="M3 24v-3a8 8 0 0 1 16 0v3z" fill="#14233a"/><circle cx="21" cy="17" r="5.2" fill="#fff" stroke="#c0392b" stroke-width="2"/><path d="M17.4 13.4l7.2 7.2" stroke="#c0392b" stroke-width="2"/><path d="M19.5 17.5l3-1.5M20 15.6l2.4 2.6" stroke="#14233a" stroke-width="1.3"/></svg>',
+    leito: '<svg viewBox="0 0 28 24" fill="none" stroke="#14233a" stroke-width="2" stroke-linecap="round"><path d="M2 21V9M2 16h24v5"/><rect x="4" y="11.5" width="5" height="4" rx="1.5" fill="#14233a"/><path d="M10 15.5v-3.5h12a4 4 0 0 1 4 4" fill="#14233a"/><circle cx="20" cy="5.5" r="4.5" fill="#14233a"/><path d="M20 3.3v4.4M17.8 5.5h4.4" stroke="#fff" stroke-width="1.6"/></svg>',
+    remedio: '<svg viewBox="0 0 28 26" fill="none" stroke="#14233a" stroke-width="1.8"><rect x="3.5" y="2" width="11" height="4" rx="1" fill="#14233a"/><rect x="2" y="6" width="14" height="17" rx="2.5" fill="#fff"/><path d="M9 10.5v8M5 14.5h8" stroke-width="2.6"/><g transform="rotate(-40 21 18)"><rect x="15.5" y="15" width="11" height="6" rx="3" fill="#fff"/><path d="M21 15v6" /></g></svg>',
+    check: (cor) => '<svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="9" fill="' + cor + '"/><path d="M5.8 10.3l2.7 2.7 5.6-5.6" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  };
+  const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+  /* "Abril a Dezembro", "Dezembro a Fevereiro", "Janeiro, Maio e Junho" */
+  function faixas(idx) {
+    const set = new Set(idx);
+    if (!set.size) return "";
+    if (set.size === 12) return "Todos os meses";
+    let ini = 0; while (set.has((ini + 11) % 12)) ini = (ini + 11) % 12;
+    const runs = []; let cur = null;
+    for (let k = 0; k < 12; k++) {
+      const m = (ini + k) % 12;
+      if (set.has(m)) { if (cur) cur.push(m); else { cur = [m]; runs.push(cur); } } else cur = null;
+    }
+    const partes = [];
+    for (const r of runs) {
+      if (r.length >= 3) partes.push(MESES[r[0]] + " a " + MESES[r[r.length - 1]]);
+      else r.forEach((m) => partes.push(MESES[m]));
+    }
+    return lista(partes);
+  }
+
+  function renderAcoes(res) {
+    const r = res.r, M = res.ag.matriz, c = cidades[state.cidade];
+    const jRt = CRIT.indexOf("Rt"), jC = CRIT.indexOf("casos_est");
+    let topo = MESES.map((_, i) => i).filter((i) => r.iii.posicao[i] <= 3 && r.iv.posicao[i] <= 3);
+    const consenso = topo.length > 0;
+    if (!consenso) topo = MESES.map((_, i) => i).filter((i) => r.iii.posicao[i] <= 3);
+    const prev = topo.reduce((a, b) => (M[b][jRt] > M[a][jRt] ? b : a), topo[0]);
+    let assist = topo.filter((i) => i !== prev);
+    if (!assist.length) {
+      const resto = MESES.map((_, i) => i).filter((i) => i !== prev);
+      assist = [resto.reduce((a, b) => (M[b][jC] > M[a][jC] ? b : a), resto[0])];
+    }
+    assist.sort((a, b) => a - b);
+    const manut = MESES.map((_, i) => i).filter((i) => i !== prev && !assist.includes(i));
+    const nPrev = MESES[prev], nAssist = faixas(assist), nManut = faixas(manut);
+    const rtPrev = M[prev][jRt];
+
+    $("txt-acoes").textContent = "Os rankings viram três momentos de ação para " + c.nome + ": prevenção em " + nPrev.toLowerCase() +
+      (rtPrev > 1 ? ", quando o Rt indica que a transmissão está acelerando" : "") + "; reforço da assistência em " + nAssist.toLowerCase() +
+      ", quando os casos pesam mais; e manutenção com comunicação contínua no restante do ano.";
+
+    const alvo = $("alvo");
+    alvo.setAttribute("aria-label", "Organização dos esforços: prevenção em " + nPrev + "; reforço da assistência em " + nAssist + "; manutenção e comunicação em " + nManut + ".");
+    alvo.innerHTML =
+      '<div class="c c1"></div><div class="c c2"></div><div class="c c3"></div>' +
+      '<div class="bl" style="top:3.5%;width:62%"><div class="tit" style="color:#14233a">' + ICONE.cal + "Demais meses</div>" +
+        '<div class="sub">' + esc(nManut) + '</div><div class="pill verde">Manutenção e Comunicação</div></div>' +
+      '<div class="bl" style="top:25%;width:50%"><div class="tit">' + ICONE.cal + esc(nAssist) + '</div><div class="pill azul">Reforço da Assistência</div></div>' +
+      '<div class="it" style="left:15.5%;top:54%;width:13%">' + ICONE.leito + "<span>Ampliação da oferta de leitos</span></div>" +
+      '<div class="it" style="right:15.5%;top:54%;width:13%">' + ICONE.remedio + "<span>Aumento do estoque de medicamentos</span></div>" +
+      '<div class="bl" style="top:46%;width:38%"><div class="tit">' + ICONE.cal + esc(nPrev) + '</div><div class="pill laranja">Esforço na Prevenção</div></div>' +
+      '<div class="div"></div>' +
+      '<div class="it" style="left:32%;top:61.5%;width:17%">' + ICONE.fumace + "<span>Fumacê (nebulização espacial)</span></div>" +
+      '<div class="it" style="left:51%;top:61.5%;width:17%">' + ICONE.agente + "<span>Atuação reforçada dos Agentes de Endemias</span></div>";
+
+    const casosAssist = assist.map((i) => fmt(M[i][jC], 0));
+    const lado = $("acoes-lado");
+    lado.innerHTML =
+      "<h3>Organização dos esforços da gestão municipal contra a dengue</h3>" +
+      '<p class="intro">Direcionamento das ações ao longo do ano em ' + esc(c.nome) + " (" + esc(textoPeriodo(res.anos)) + "), com foco na prevenção, no reforço da assistência e na manutenção das atividades.</p>" +
+      '<div class="tier"><span class="pill laranja">' + esc(nPrev) + '</span><div class="linha">' + ICONE.check("#e0662a") +
+        "<div><b>Esforço concentrado na prevenção:</b> fumacê (nebulização espacial) e atuação reforçada dos Agentes de Endemias.</div></div>" +
+        '<p class="pq">Por quê: Rt médio de ' + fmt(rtPrev, 2) + ", o maior entre os meses prioritários" +
+        (rtPrev > 1 ? " — a transmissão está acelerando." : ". Atenção: ficou abaixo de 1, sem sinal de aceleração.") + "</p></div>" +
+      '<div class="tier"><span class="pill azul">' + esc(nAssist) + '</span><div class="linha">' + ICONE.check("#1f6fb2") +
+        "<div><b>Reforço da área assistencial:</b> aumento da oferta de leitos e do estoque de medicamentos para atender ao aumento de casos.</div></div>" +
+        '<p class="pq">Por quê: ' + lista(casosAssist) + (assist.length > 1 ? " casos por semana, respectivamente" : " casos por semana") +
+        (consenso ? ", entre os três primeiros nos dois métodos." : ".") + "</p></div>" +
+      '<div class="tier"><span class="pill verde">' + esc(nManut) + '</span><div class="linha">' + ICONE.check("#2e8b3a") +
+        "<div><b>Comunicação contínua</b> sobre prevenção e ações de rotina nas demais áreas da gestão.</div></div></div>";
+
+    $("regra-acoes").textContent = (consenso
+      ? "Como a figura é montada: os meses que ficam entre os três primeiros no ELECTRE III e no IV formam o grupo prioritário. "
+      : "Sem consenso no topo entre os métodos: a figura usa os três primeiros do ELECTRE III. ") +
+      "Desse grupo, o mês de maior Rt vai para a prevenção e os demais para o reforço da assistência; os outros meses ficam em manutenção. Mude a cidade, os anos ou os pesos e a figura se refaz.";
+  }
+
   function nomesNaPosicao(r, m, p) { return r[m].ordem.filter((i) => r[m].posicao[i] === p).map((i) => MESES[i]); }
 
   function renderResumo(res) {
@@ -1861,8 +1978,7 @@ footer { padding-block: 10px 40px; color: var(--ink-3); font-size: .82rem; displ
     const res = calcular(state.cidade, state.anos);
     atual = res;
     renderCabecalho(res);
-    $("sec-acoes").hidden = state.cidade !== "belem";
-    const secoes = document.querySelectorAll("main > section.bloco:not(#sec-resumo):not(#sec-dados):not(#sec-acoes)");
+    const secoes = document.querySelectorAll("main > section.bloco:not(#sec-resumo):not(#sec-dados)");
     if (!res.r) {
       $("resumo").textContent = "";
       $("txt-resumo").textContent = "";
@@ -1877,6 +1993,7 @@ footer { padding-block: 10px 40px; color: var(--ink-3); font-size: .82rem; displ
     secoes.forEach((s) => { s.hidden = false; });
     renderAvisos(res);
     renderResumo(res);
+    renderAcoes(res);
     renderSlope(res);
     renderMatriz(res);
     renderSeries(res);

@@ -356,6 +356,93 @@
     selo.appendChild(b);
   }
 
+  /* ---------------- do resultado à ação ---------------- */
+  const ICONE = {
+    cal: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 17.5h.01M12 17.5h.01" stroke-width="2.6"/></svg>',
+    fumace: '<svg viewBox="0 0 32 24" fill="none" stroke="#14233a" stroke-width="1.8" stroke-linejoin="round"><path d="M2 7h12v10H2zM14 10h4l3 3v4h-7z" fill="#14233a"/><circle cx="6" cy="18.5" r="2.3" fill="#fff"/><circle cx="17" cy="18.5" r="2.3" fill="#fff"/><path d="M23 9.5a2.2 2.2 0 0 1 3-2 2.6 2.6 0 0 1 4.6 1.6 2 2 0 0 1-.8 3.9H23.6a2 2 0 0 1-.6-3.5z" fill="#fff"/></svg>',
+    agente: '<svg viewBox="0 0 28 26" fill="none" stroke="#14233a" stroke-width="1.8"><path d="M6 6.5a5 5 0 0 1 10 0z" fill="#14233a"/><circle cx="11" cy="9.5" r="3.6" fill="#f3c9a4"/><path d="M3 24v-3a8 8 0 0 1 16 0v3z" fill="#14233a"/><circle cx="21" cy="17" r="5.2" fill="#fff" stroke="#c0392b" stroke-width="2"/><path d="M17.4 13.4l7.2 7.2" stroke="#c0392b" stroke-width="2"/><path d="M19.5 17.5l3-1.5M20 15.6l2.4 2.6" stroke="#14233a" stroke-width="1.3"/></svg>',
+    leito: '<svg viewBox="0 0 28 24" fill="none" stroke="#14233a" stroke-width="2" stroke-linecap="round"><path d="M2 21V9M2 16h24v5"/><rect x="4" y="11.5" width="5" height="4" rx="1.5" fill="#14233a"/><path d="M10 15.5v-3.5h12a4 4 0 0 1 4 4" fill="#14233a"/><circle cx="20" cy="5.5" r="4.5" fill="#14233a"/><path d="M20 3.3v4.4M17.8 5.5h4.4" stroke="#fff" stroke-width="1.6"/></svg>',
+    remedio: '<svg viewBox="0 0 28 26" fill="none" stroke="#14233a" stroke-width="1.8"><rect x="3.5" y="2" width="11" height="4" rx="1" fill="#14233a"/><rect x="2" y="6" width="14" height="17" rx="2.5" fill="#fff"/><path d="M9 10.5v8M5 14.5h8" stroke-width="2.6"/><g transform="rotate(-40 21 18)"><rect x="15.5" y="15" width="11" height="6" rx="3" fill="#fff"/><path d="M21 15v6" /></g></svg>',
+    check: (cor) => '<svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="9" fill="' + cor + '"/><path d="M5.8 10.3l2.7 2.7 5.6-5.6" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  };
+  const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+  /* "Abril a Dezembro", "Dezembro a Fevereiro", "Janeiro, Maio e Junho" */
+  function faixas(idx) {
+    const set = new Set(idx);
+    if (!set.size) return "";
+    if (set.size === 12) return "Todos os meses";
+    let ini = 0; while (set.has((ini + 11) % 12)) ini = (ini + 11) % 12;
+    const runs = []; let cur = null;
+    for (let k = 0; k < 12; k++) {
+      const m = (ini + k) % 12;
+      if (set.has(m)) { if (cur) cur.push(m); else { cur = [m]; runs.push(cur); } } else cur = null;
+    }
+    const partes = [];
+    for (const r of runs) {
+      if (r.length >= 3) partes.push(MESES[r[0]] + " a " + MESES[r[r.length - 1]]);
+      else r.forEach((m) => partes.push(MESES[m]));
+    }
+    return lista(partes);
+  }
+
+  function renderAcoes(res) {
+    const r = res.r, M = res.ag.matriz, c = cidades[state.cidade];
+    const jRt = CRIT.indexOf("Rt"), jC = CRIT.indexOf("casos_est");
+    let topo = MESES.map((_, i) => i).filter((i) => r.iii.posicao[i] <= 3 && r.iv.posicao[i] <= 3);
+    const consenso = topo.length > 0;
+    if (!consenso) topo = MESES.map((_, i) => i).filter((i) => r.iii.posicao[i] <= 3);
+    const prev = topo.reduce((a, b) => (M[b][jRt] > M[a][jRt] ? b : a), topo[0]);
+    let assist = topo.filter((i) => i !== prev);
+    if (!assist.length) {
+      const resto = MESES.map((_, i) => i).filter((i) => i !== prev);
+      assist = [resto.reduce((a, b) => (M[b][jC] > M[a][jC] ? b : a), resto[0])];
+    }
+    assist.sort((a, b) => a - b);
+    const manut = MESES.map((_, i) => i).filter((i) => i !== prev && !assist.includes(i));
+    const nPrev = MESES[prev], nAssist = faixas(assist), nManut = faixas(manut);
+    const rtPrev = M[prev][jRt];
+
+    $("txt-acoes").textContent = "Os rankings viram três momentos de ação para " + c.nome + ": prevenção em " + nPrev.toLowerCase() +
+      (rtPrev > 1 ? ", quando o Rt indica que a transmissão está acelerando" : "") + "; reforço da assistência em " + nAssist.toLowerCase() +
+      ", quando os casos pesam mais; e manutenção com comunicação contínua no restante do ano.";
+
+    const alvo = $("alvo");
+    alvo.setAttribute("aria-label", "Organização dos esforços: prevenção em " + nPrev + "; reforço da assistência em " + nAssist + "; manutenção e comunicação em " + nManut + ".");
+    alvo.innerHTML =
+      '<div class="c c1"></div><div class="c c2"></div><div class="c c3"></div>' +
+      '<div class="bl" style="top:3.5%;width:62%"><div class="tit" style="color:#14233a">' + ICONE.cal + "Demais meses</div>" +
+        '<div class="sub">' + esc(nManut) + '</div><div class="pill verde">Manutenção e Comunicação</div></div>' +
+      '<div class="bl" style="top:25%;width:50%"><div class="tit">' + ICONE.cal + esc(nAssist) + '</div><div class="pill azul">Reforço da Assistência</div></div>' +
+      '<div class="it" style="left:15.5%;top:54%;width:13%">' + ICONE.leito + "<span>Ampliação da oferta de leitos</span></div>" +
+      '<div class="it" style="right:15.5%;top:54%;width:13%">' + ICONE.remedio + "<span>Aumento do estoque de medicamentos</span></div>" +
+      '<div class="bl" style="top:46%;width:38%"><div class="tit">' + ICONE.cal + esc(nPrev) + '</div><div class="pill laranja">Esforço na Prevenção</div></div>' +
+      '<div class="div"></div>' +
+      '<div class="it" style="left:32%;top:61.5%;width:17%">' + ICONE.fumace + "<span>Fumacê (nebulização espacial)</span></div>" +
+      '<div class="it" style="left:51%;top:61.5%;width:17%">' + ICONE.agente + "<span>Atuação reforçada dos Agentes de Endemias</span></div>";
+
+    const casosAssist = assist.map((i) => fmt(M[i][jC], 0));
+    const lado = $("acoes-lado");
+    lado.innerHTML =
+      "<h3>Organização dos esforços da gestão municipal contra a dengue</h3>" +
+      '<p class="intro">Direcionamento das ações ao longo do ano em ' + esc(c.nome) + " (" + esc(textoPeriodo(res.anos)) + "), com foco na prevenção, no reforço da assistência e na manutenção das atividades.</p>" +
+      '<div class="tier"><span class="pill laranja">' + esc(nPrev) + '</span><div class="linha">' + ICONE.check("#e0662a") +
+        "<div><b>Esforço concentrado na prevenção:</b> fumacê (nebulização espacial) e atuação reforçada dos Agentes de Endemias.</div></div>" +
+        '<p class="pq">Por quê: Rt médio de ' + fmt(rtPrev, 2) + ", o maior entre os meses prioritários" +
+        (rtPrev > 1 ? " — a transmissão está acelerando." : ". Atenção: ficou abaixo de 1, sem sinal de aceleração.") + "</p></div>" +
+      '<div class="tier"><span class="pill azul">' + esc(nAssist) + '</span><div class="linha">' + ICONE.check("#1f6fb2") +
+        "<div><b>Reforço da área assistencial:</b> aumento da oferta de leitos e do estoque de medicamentos para atender ao aumento de casos.</div></div>" +
+        '<p class="pq">Por quê: ' + lista(casosAssist) + (assist.length > 1 ? " casos por semana, respectivamente" : " casos por semana") +
+        (consenso ? ", entre os três primeiros nos dois métodos." : ".") + "</p></div>" +
+      '<div class="tier"><span class="pill verde">' + esc(nManut) + '</span><div class="linha">' + ICONE.check("#2e8b3a") +
+        "<div><b>Comunicação contínua</b> sobre prevenção e ações de rotina nas demais áreas da gestão.</div></div></div>";
+
+    $("regra-acoes").textContent = (consenso
+      ? "Como a figura é montada: os meses que ficam entre os três primeiros no ELECTRE III e no IV formam o grupo prioritário. "
+      : "Sem consenso no topo entre os métodos: a figura usa os três primeiros do ELECTRE III. ") +
+      "Desse grupo, o mês de maior Rt vai para a prevenção e os demais para o reforço da assistência; os outros meses ficam em manutenção. Mude a cidade, os anos ou os pesos e a figura se refaz.";
+  }
+
   function nomesNaPosicao(r, m, p) { return r[m].ordem.filter((i) => r[m].posicao[i] === p).map((i) => MESES[i]); }
 
   function renderResumo(res) {
@@ -1020,8 +1107,7 @@
     const res = calcular(state.cidade, state.anos);
     atual = res;
     renderCabecalho(res);
-    $("sec-acoes").hidden = state.cidade !== "belem";
-    const secoes = document.querySelectorAll("main > section.bloco:not(#sec-resumo):not(#sec-dados):not(#sec-acoes)");
+    const secoes = document.querySelectorAll("main > section.bloco:not(#sec-resumo):not(#sec-dados)");
     if (!res.r) {
       $("resumo").textContent = "";
       $("txt-resumo").textContent = "";
@@ -1036,6 +1122,7 @@
     secoes.forEach((s) => { s.hidden = false; });
     renderAvisos(res);
     renderResumo(res);
+    renderAcoes(res);
     renderSlope(res);
     renderMatriz(res);
     renderSeries(res);

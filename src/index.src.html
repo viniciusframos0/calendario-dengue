@@ -127,10 +127,41 @@ section.bloco {
 }
 .bloco-cab { display: grid; gap: 6px; }
 .bloco-cab p { color: var(--ink-2); }
-figure.acoes { margin: 0; display: grid; gap: 8px; max-width: 980px; }
-figure.acoes a { display: block; border: 1px solid var(--rule); border-radius: 8px; overflow: hidden; background: #fff; }
-figure.acoes img { display: block; width: 100%; height: auto; }
-figure.acoes figcaption { font-size: .8rem; color: var(--ink-3); }
+.acoes-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: clamp(18px, 3vw, 36px); align-items: center;
+  background: #fff; color: #14233a; border: 1px solid var(--rule); border-radius: 12px; padding: clamp(14px, 2.4vw, 28px); }
+@media (max-width: 760px) { .acoes-grid { grid-template-columns: 1fr; } }
+.alvo-wrap { container-type: inline-size; max-width: 560px; width: 100%; justify-self: center; }
+.alvo { position: relative; width: 100%; aspect-ratio: 1; font-family: var(--f-display); }
+.alvo .c { position: absolute; border-radius: 50%; border-style: solid; }
+.alvo .c1 { inset: 0; border-width: .9cqw; border-color: #2e8b3a; background: radial-gradient(circle at 50% 55%, #e4f5dc 55%, #c9eabd 100%); }
+.alvo .c2 { left: 14%; top: 22%; width: 72%; height: 72%; border-width: .7cqw; border-color: #1f6fb2; background: radial-gradient(circle at 50% 50%, #d8eefb 50%, #b5dcf5 100%); }
+.alvo .c3 { left: 29%; top: 42%; width: 42%; height: 42%; border-width: .7cqw; border-color: #e0662a; background: radial-gradient(circle at 50% 45%, #fde0c6 40%, #f8b98a 100%); }
+.alvo .bl { position: absolute; left: 50%; transform: translateX(-50%); display: grid; justify-items: center; gap: .8cqw; text-align: center; width: 70%; }
+.alvo .tit { display: flex; align-items: center; gap: 1.2cqw; font-weight: 800; font-size: 4cqw; line-height: 1.05; color: #14233a; }
+.alvo .tit svg { width: 4.6cqw; height: 4.6cqw; flex: none; }
+.alvo .sub { font-weight: 700; font-size: 2.7cqw; line-height: 1.1; color: #14233a; }
+.alvo .pill { color: #fff; font-weight: 700; font-size: 2.6cqw; padding: .9cqw 3cqw; border-radius: 99px; white-space: nowrap; }
+.alvo .verde { background: #2e8b3a; } .alvo .azul { background: #1f6fb2; } .alvo .laranja { background: #e0662a; }
+.alvo .it { position: absolute; display: grid; justify-items: center; gap: .6cqw; text-align: center; font-family: var(--f-body); font-weight: 600; font-size: 1.85cqw; line-height: 1.15; color: #14233a; }
+.alvo .it svg { width: 7cqw; height: 7cqw; }
+.alvo .div { position: absolute; left: 50%; top: 61%; height: 16%; border-left: .35cqw solid #e0662a; }
+@container (max-width: 420px) {
+  .alvo .it span { display: none; }
+  .alvo .it svg { width: 8.5cqw; height: 8.5cqw; }
+  .alvo .pill { font-size: 3.1cqw; }
+  .alvo .sub { font-size: 3.2cqw; }
+  .alvo .tit { font-size: 4.6cqw; }
+}
+.acoes-lado { display: grid; gap: 16px; font-size: .95rem; }
+.acoes-lado h3 { font-family: var(--f-display); font-size: clamp(1.25rem, 2.2vw, 1.65rem); line-height: 1.15; color: #14233a; }
+.acoes-lado .intro { color: #47554f; border-block: 1px solid #c9d3dc; padding-block: 10px; }
+.acoes-lado .tier { display: grid; gap: 6px; }
+.acoes-lado .tier .pill { justify-self: start; color: #fff; font-weight: 700; padding: 3px 14px; border-radius: 99px; }
+.acoes-lado .tier .pill.laranja { background: #e0662a; } .acoes-lado .tier .pill.azul { background: #1f6fb2; } .acoes-lado .tier .pill.verde { background: #2e8b3a; }
+.acoes-lado .linha { display: grid; grid-template-columns: 20px 1fr; gap: 8px; align-items: start; }
+.acoes-lado .linha svg { width: 20px; height: 20px; margin-top: 2px; }
+.acoes-lado .pq { font-size: .84rem; color: #5b6770; margin-left: 28px; }
+.nota-acoes { font-size: .82rem; color: var(--ink-3); }
 .duas { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 22px; }
 .duas > * { min-width: 0; }
 .rolagem { overflow-x: auto; min-width: 0; }
@@ -313,14 +344,13 @@ footer { padding-block: 10px 40px; color: var(--ink-3); font-size: .82rem; displ
     <div class="bloco-cab">
       <span class="eyebrow">Do resultado à ação</span>
       <h2 id="h-acoes">Como a gestão municipal pode organizar o ano</h2>
-      <p>Os rankings viram três momentos de ação para Belém: prevenção em janeiro, quando o Rt indica que a transmissão está acelerando; reforço da assistência em fevereiro e março, quando os casos chegam ao máximo; e manutenção com comunicação contínua no restante do ano.</p>
+      <p id="txt-acoes"></p>
     </div>
-    <figure class="acoes">
-      <a href="img/acoes-belem.jpg" target="_blank" rel="noopener" title="Abrir a imagem em tamanho original">
-        <img src="img/acoes-belem.jpg" width="1536" height="1024" loading="lazy" alt="Organização dos esforços da gestão municipal contra a dengue em três círculos. No centro, janeiro: esforço na prevenção, com fumacê (nebulização espacial) e atuação reforçada dos Agentes de Endemias. No círculo do meio, fevereiro e março: reforço da assistência, com ampliação da oferta de leitos e aumento do estoque de medicamentos. No círculo externo, abril a dezembro: manutenção e comunicação, com comunicação contínua sobre prevenção e ações de rotina nas demais áreas.">
-      </a>
-      <figcaption>Proposta baseada nos resultados do ELECTRE III e IV para Belém (2023–2026). Toque na imagem para ampliar.</figcaption>
-    </figure>
+    <div class="acoes-grid">
+      <div class="alvo-wrap"><div class="alvo" id="alvo" role="img"></div></div>
+      <div class="acoes-lado" id="acoes-lado"></div>
+    </div>
+    <p class="nota-acoes" id="regra-acoes"></p>
   </section>
 
   <section class="bloco" aria-labelledby="h-slope">
