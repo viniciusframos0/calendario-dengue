@@ -389,58 +389,68 @@
   function renderAcoes(res) {
     const r = res.r, M = res.ag.matriz, c = cidades[state.cidade];
     const jRt = CRIT.indexOf("Rt"), jC = CRIT.indexOf("casos_est");
-    let topo = MESES.map((_, i) => i).filter((i) => r.iii.posicao[i] <= 3 && r.iv.posicao[i] <= 3);
-    const consenso = topo.length > 0;
-    if (!consenso) topo = MESES.map((_, i) => i).filter((i) => r.iii.posicao[i] <= 3);
-    const prev = topo.reduce((a, b) => (M[b][jRt] > M[a][jRt] ? b : a), topo[0]);
-    let assist = topo.filter((i) => i !== prev);
-    if (!assist.length) {
-      const resto = MESES.map((_, i) => i).filter((i) => i !== prev);
-      assist = [resto.reduce((a, b) => (M[b][jC] > M[a][jC] ? b : a), resto[0])];
+    const idx = MESES.map((_, i) => i);
+    // posição combinada: média das posições normalizadas no III e no IV (0 = melhor)
+    const norm = (m, i) => { const mx = Math.max(...r[m].posicao); return mx > 1 ? (r[m].posicao[i] - 1) / (mx - 1) : 0; };
+    const comb = idx.map((i) => (norm("iii", i) + norm("iv", i)) / 2);
+    const valores = [...new Set(comb.map((v) => +v.toFixed(9)))].sort((a, b) => a - b);
+    const ordem = idx.map((i) => valores.indexOf(+comb[i].toFixed(9)) + 1);
+    const porOrdem = idx.slice().sort((a, b) => comb[a] - comb[b] || a - b);
+    const corte = comb[porOrdem[2]];
+    const topo = porOrdem.filter((i) => comb[i] <= corte + 1e-9);
+    // tipo de ação: o que mais coloca o mês no topo, Rt (transmissão acelerando) ou casos (carga)
+    const ext = (j) => { const col = M.map((l) => l[j]); return [Math.min(...col), Math.max(...col)]; };
+    const [cMin, cMax] = ext(jC), [rMin, rMax] = ext(jRt);
+    const nC = (i) => (cMax > cMin ? (M[i][jC] - cMin) / (cMax - cMin) : 0);
+    const nR = (i) => (rMax > rMin ? (M[i][jRt] - rMin) / (rMax - rMin) : 0);
+    const tipo = idx.map((i) => (!topo.includes(i) ? "manut" : M[i][jRt] > 1 && nR(i) > nC(i) ? "prev" : "assist"));
+    const max = idx.filter((i) => ordem[i] === 1);
+    const ROT_AC = { prev: "Prevenção", assist: "Reforço da assistência", manut: "Manutenção" };
+
+    const box = $("cal-acoes"); box.innerHTML = "";
+    for (const i of idx) {
+      const d = document.createElement("div");
+      d.className = "mes-a " + tipo[i] + (max.includes(i) ? " max" : "");
+      d.setAttribute("role", "listitem");
+      d.innerHTML = (max.includes(i) ? '<span class="coroa"><span class="longo">Prioridade máxima</span><span class="curto">★ Máxima</span></span>' : "") +
+        '<span class="nm">' + ABR[i] + '</span><span class="ps">' + ordem[i] + 'º</span><span class="ac">' + ROT_AC[tipo[i]] + "</span>";
+      d.title = MESES[i] + ": " + ordem[i] + "º na posição combinada (III " + r.iii.posicao[i] + "º · IV " + r.iv.posicao[i] + "º). " +
+        "Casos " + fmt(M[i][jC], 0) + "/semana · Rt " + fmt(M[i][jRt], 2);
+      box.appendChild(d);
     }
-    assist.sort((a, b) => a - b);
-    const manut = MESES.map((_, i) => i).filter((i) => i !== prev && !assist.includes(i));
-    const nPrev = MESES[prev], nAssist = faixas(assist), nManut = faixas(manut);
-    const rtPrev = M[prev][jRt];
+    $("leg-acoes").innerHTML =
+      '<span><i style="background:#e0662a"></i>Prevenção: o Rt é o que coloca o mês no topo</span>' +
+      '<span><i style="background:#1f6fb2"></i>Reforço da assistência: os casos são o que colocam o mês no topo</span>' +
+      '<span><i style="background:color-mix(in srgb,#2e8b3a 25%,#fff);border:1px solid #2e8b3a"></i>Manutenção</span>' +
+      '<span>O número é a posição combinada do ELECTRE III e IV.</span>';
 
-    $("txt-acoes").textContent = "Os rankings viram três momentos de ação para " + c.nome + ": prevenção em " + nPrev.toLowerCase() +
-      (rtPrev > 1 ? ", quando o Rt indica que a transmissão está acelerando" : "") + "; reforço da assistência em " + nAssist.toLowerCase() +
-      ", quando os casos pesam mais; e manutenção com comunicação contínua no restante do ano.";
+    const grupo = (t) => porOrdem.filter((i) => tipo[i] === t);
+    const motivo = (i) => "<li><b>" + MESES[i] + " (" + ordem[i] + "º)</b>: " + (tipo[i] === "prev"
+      ? "Rt " + fmt(M[i][jRt], 2) + ", transmissão acelerando; " + fmt(M[i][jC], 0) + " casos/semana"
+      : fmt(M[i][jC], 0) + " casos/semana; Rt " + fmt(M[i][jRt], 2)) + "</li>";
+    const P = [
+      { t: "prev", cor: "#e0662a", tit: "Prevenção", txt: "Agir antes de os casos crescerem.",
+        ic: [["fumace", "Fumacê (nebulização espacial)"], ["agente", "Agentes de Endemias reforçados"]] },
+      { t: "assist", cor: "#1f6fb2", tit: "Reforço da assistência", txt: "Atender o volume de casos.",
+        ic: [["leito", "Mais leitos"], ["remedio", "Estoque de medicamentos"]] },
+      { t: "manut", cor: "#2e8b3a", tit: "Manutenção", txt: "Comunicação contínua sobre prevenção e ações de rotina." },
+    ];
+    $("planos").innerHTML = P.map((p) => {
+      const g = grupo(p.t);
+      const corpo = !g.length ? '<p class="vazio">Nenhum mês neste grupo com a configuração atual.</p>'
+        : p.t === "manut" ? '<p class="meses">' + esc(faixas(g)) + "</p>"
+        : '<p class="meses">' + esc(lista(g.map((i) => MESES[i]))) + "</p><ul>" + g.map(motivo).join("") + "</ul>";
+      const ic = p.ic ? '<div class="icones">' + p.ic.map(([k, l]) => "<div>" + ICONE[k] + "<span>" + l + "</span></div>").join("") + "</div>" : "";
+      return '<div class="plano" style="--cor:' + p.cor + '"><h3>' + p.tit + "</h3>" + corpo + '<p class="small">' + p.txt + "</p>" + ic + "</div>";
+    }).join("");
 
-    const alvo = $("alvo");
-    alvo.setAttribute("aria-label", "Organização dos esforços: prevenção em " + nPrev + "; reforço da assistência em " + nAssist + "; manutenção e comunicação em " + nManut + ".");
-    alvo.innerHTML =
-      '<div class="c c1"></div><div class="c c2"></div><div class="c c3"></div>' +
-      '<div class="bl" style="top:3.5%;width:62%"><div class="tit" style="color:#14233a">' + ICONE.cal + "Demais meses</div>" +
-        '<div class="sub">' + esc(nManut) + '</div><div class="pill verde">Manutenção e Comunicação</div></div>' +
-      '<div class="bl" style="top:25%;width:50%"><div class="tit">' + ICONE.cal + esc(nAssist) + '</div><div class="pill azul">Reforço da Assistência</div></div>' +
-      '<div class="it" style="left:15.5%;top:54%;width:13%">' + ICONE.leito + "<span>Ampliação da oferta de leitos</span></div>" +
-      '<div class="it" style="right:15.5%;top:54%;width:13%">' + ICONE.remedio + "<span>Aumento do estoque de medicamentos</span></div>" +
-      '<div class="bl" style="top:46%;width:38%"><div class="tit">' + ICONE.cal + esc(nPrev) + '</div><div class="pill laranja">Esforço na Prevenção</div></div>' +
-      '<div class="div"></div>' +
-      '<div class="it" style="left:32%;top:61.5%;width:17%">' + ICONE.fumace + "<span>Fumacê (nebulização espacial)</span></div>" +
-      '<div class="it" style="left:51%;top:61.5%;width:17%">' + ICONE.agente + "<span>Atuação reforçada dos Agentes de Endemias</span></div>";
-
-    const casosAssist = assist.map((i) => fmt(M[i][jC], 0));
-    const lado = $("acoes-lado");
-    lado.innerHTML =
-      "<h3>Organização dos esforços da gestão municipal contra a dengue</h3>" +
-      '<p class="intro">Direcionamento das ações ao longo do ano em ' + esc(c.nome) + " (" + esc(textoPeriodo(res.anos)) + "), com foco na prevenção, no reforço da assistência e na manutenção das atividades.</p>" +
-      '<div class="tier"><span class="pill laranja">' + esc(nPrev) + '</span><div class="linha">' + ICONE.check("#e0662a") +
-        "<div><b>Esforço concentrado na prevenção:</b> fumacê (nebulização espacial) e atuação reforçada dos Agentes de Endemias.</div></div>" +
-        '<p class="pq">Por quê: Rt médio de ' + fmt(rtPrev, 2) + ", o maior entre os meses prioritários" +
-        (rtPrev > 1 ? " — a transmissão está acelerando." : ". Atenção: ficou abaixo de 1, sem sinal de aceleração.") + "</p></div>" +
-      '<div class="tier"><span class="pill azul">' + esc(nAssist) + '</span><div class="linha">' + ICONE.check("#1f6fb2") +
-        "<div><b>Reforço da área assistencial:</b> aumento da oferta de leitos e do estoque de medicamentos para atender ao aumento de casos.</div></div>" +
-        '<p class="pq">Por quê: ' + lista(casosAssist) + (assist.length > 1 ? " casos por semana, respectivamente" : " casos por semana") +
-        (consenso ? ", entre os três primeiros nos dois métodos." : ".") + "</p></div>" +
-      '<div class="tier"><span class="pill verde">' + esc(nManut) + '</span><div class="linha">' + ICONE.check("#2e8b3a") +
-        "<div><b>Comunicação contínua</b> sobre prevenção e ações de rotina nas demais áreas da gestão.</div></div></div>";
-
-    $("regra-acoes").textContent = (consenso
-      ? "Como a figura é montada: os meses que ficam entre os três primeiros no ELECTRE III e no IV formam o grupo prioritário. "
-      : "Sem consenso no topo entre os métodos: a figura usa os três primeiros do ELECTRE III. ") +
-      "Desse grupo, o mês de maior Rt vai para a prevenção e os demais para o reforço da assistência; os outros meses ficam em manutenção. Mude a cidade, os anos ou os pesos e a figura se refaz.";
+    const gP = grupo("prev"), gA = grupo("assist");
+    $("txt-acoes").textContent = "Em " + c.nome + " (" + textoPeriodo(res.anos) + "), a prioridade máxima é " + lista(max.map((i) => MESES[i].toLowerCase())) + ". " +
+      (gP.length ? "Prevenção em " + lista(gP.map((i) => MESES[i].toLowerCase())) + ", onde o Rt pesa mais" : "Nenhum mês do topo tem o Rt como principal motivo") +
+      (gA.length ? "; reforço da assistência em " + lista(gA.map((i) => MESES[i].toLowerCase())) + ", onde os casos pesam mais" : "") +
+      ". Mude a cidade, os anos, os pesos ou os limiares e o calendário se refaz.";
+    $("regra-acoes").textContent = "Como é montado: cada mês recebe a média das suas posições no ELECTRE III e no IV (normalizadas, porque os dois métodos têm números de classes diferentes). " +
+      "Os três primeiros (com empates) formam o grupo prioritário. Em cada um, compara-se onde ele está mais perto do máximo do ano: no Rt (com Rt acima de 1) → prevenção; nos casos → reforço da assistência. Os demais meses ficam em manutenção.";
   }
 
   function nomesNaPosicao(r, m, p) { return r[m].ordem.filter((i) => r[m].posicao[i] === p).map((i) => MESES[i]); }

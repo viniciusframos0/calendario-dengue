@@ -127,40 +127,36 @@ section.bloco {
 }
 .bloco-cab { display: grid; gap: 6px; }
 .bloco-cab p { color: var(--ink-2); }
-.acoes-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: clamp(18px, 3vw, 36px); align-items: center;
-  background: #fff; color: #14233a; border: 1px solid var(--rule); border-radius: 12px; padding: clamp(14px, 2.4vw, 28px); }
-@media (max-width: 760px) { .acoes-grid { grid-template-columns: 1fr; } }
-.alvo-wrap { container-type: inline-size; max-width: 560px; width: 100%; justify-self: center; }
-.alvo { position: relative; width: 100%; aspect-ratio: 1; font-family: var(--f-display); }
-.alvo .c { position: absolute; border-radius: 50%; border-style: solid; }
-.alvo .c1 { inset: 0; border-width: .9cqw; border-color: #2e8b3a; background: radial-gradient(circle at 50% 55%, #e4f5dc 55%, #c9eabd 100%); }
-.alvo .c2 { left: 14%; top: 22%; width: 72%; height: 72%; border-width: .7cqw; border-color: #1f6fb2; background: radial-gradient(circle at 50% 50%, #d8eefb 50%, #b5dcf5 100%); }
-.alvo .c3 { left: 29%; top: 42%; width: 42%; height: 42%; border-width: .7cqw; border-color: #e0662a; background: radial-gradient(circle at 50% 45%, #fde0c6 40%, #f8b98a 100%); }
-.alvo .bl { position: absolute; left: 50%; transform: translateX(-50%); display: grid; justify-items: center; gap: .8cqw; text-align: center; width: 70%; }
-.alvo .tit { display: flex; align-items: center; gap: 1.2cqw; font-weight: 800; font-size: 4cqw; line-height: 1.05; color: #14233a; }
-.alvo .tit svg { width: 4.6cqw; height: 4.6cqw; flex: none; }
-.alvo .sub { font-weight: 700; font-size: 2.7cqw; line-height: 1.1; color: #14233a; }
-.alvo .pill { color: #fff; font-weight: 700; font-size: 2.6cqw; padding: .9cqw 3cqw; border-radius: 99px; white-space: nowrap; }
-.alvo .verde { background: #2e8b3a; } .alvo .azul { background: #1f6fb2; } .alvo .laranja { background: #e0662a; }
-.alvo .it { position: absolute; display: grid; justify-items: center; gap: .6cqw; text-align: center; font-family: var(--f-body); font-weight: 600; font-size: 1.85cqw; line-height: 1.15; color: #14233a; }
-.alvo .it svg { width: 7cqw; height: 7cqw; }
-.alvo .div { position: absolute; left: 50%; top: 61%; height: 16%; border-left: .35cqw solid #e0662a; }
-@container (max-width: 420px) {
-  .alvo .it span { display: none; }
-  .alvo .it svg { width: 8.5cqw; height: 8.5cqw; }
-  .alvo .pill { font-size: 3.1cqw; }
-  .alvo .sub { font-size: 3.2cqw; }
-  .alvo .tit { font-size: 4.6cqw; }
-}
-.acoes-lado { display: grid; gap: 16px; font-size: .95rem; }
-.acoes-lado h3 { font-family: var(--f-display); font-size: clamp(1.25rem, 2.2vw, 1.65rem); line-height: 1.15; color: #14233a; }
-.acoes-lado .intro { color: #47554f; border-block: 1px solid #c9d3dc; padding-block: 10px; }
-.acoes-lado .tier { display: grid; gap: 6px; }
-.acoes-lado .tier .pill { justify-self: start; color: #fff; font-weight: 700; padding: 3px 14px; border-radius: 99px; }
-.acoes-lado .tier .pill.laranja { background: #e0662a; } .acoes-lado .tier .pill.azul { background: #1f6fb2; } .acoes-lado .tier .pill.verde { background: #2e8b3a; }
-.acoes-lado .linha { display: grid; grid-template-columns: 20px 1fr; gap: 8px; align-items: start; }
-.acoes-lado .linha svg { width: 20px; height: 20px; margin-top: 2px; }
-.acoes-lado .pq { font-size: .84rem; color: #5b6770; margin-left: 28px; }
+.cal-acoes { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 6px; }
+@media (max-width: 760px) { .cal-acoes { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.mes-a { position: relative; display: grid; gap: 4px; align-content: start; justify-items: center; text-align: center;
+  padding: 10px 4px 9px; border-radius: 9px; border: 1px solid var(--rule); background: var(--surface-2); color: var(--ink-2); min-height: 92px; }
+.mes-a .nm { font-family: var(--f-display); font-weight: 800; font-size: 1.05rem; color: var(--ink); }
+.mes-a .ps { font-family: var(--f-mono); font-size: .74rem; }
+.mes-a .ac { font-size: .72rem; font-weight: 700; line-height: 1.15; }
+.mes-a.prev { background: #e0662a; border-color: #e0662a; color: #fff; }
+.mes-a.assist { background: #1f6fb2; border-color: #1f6fb2; color: #fff; }
+.mes-a.prev .nm, .mes-a.assist .nm { color: #fff; }
+.mes-a.manut { background: color-mix(in srgb, #2e8b3a 12%, var(--surface)); border-color: color-mix(in srgb, #2e8b3a 35%, var(--surface)); }
+.mes-a.manut .ac { color: #2e8b3a; font-weight: 600; }
+.mes-a.max { outline: 3px solid var(--ink); outline-offset: 2px; }
+.mes-a .coroa { position: absolute; top: -11px; left: 50%; transform: translateX(-50%); background: var(--ink); color: var(--surface);
+  font-size: .62rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 7px; border-radius: 99px; white-space: nowrap; }
+@media (max-width: 760px) { .mes-a .coroa .longo { display: none; } .mes-a .coroa { font-size: .6rem; padding: 2px 6px; } }
+@media (min-width: 761px) { .mes-a .coroa .curto { display: none; } }
+.leg-acoes { display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: .84rem; color: var(--ink-2); }
+.leg-acoes span { display: inline-flex; align-items: center; gap: 6px; }
+.leg-acoes i { width: 14px; height: 14px; border-radius: 4px; display: inline-block; }
+.planos { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)); gap: 12px; }
+.plano { border: 1px solid var(--rule); border-top: 5px solid var(--cor); border-radius: 10px; padding: 14px 16px; display: grid; gap: 8px; align-content: start; background: var(--surface); }
+.plano h3 { font-family: var(--f-display); font-size: 1.1rem; color: var(--ink); display: flex; align-items: center; gap: 8px; }
+.plano .meses { font-weight: 700; color: var(--cor); }
+.plano .icones { display: flex; gap: 14px; }
+.plano .icones div { display: grid; grid-template-columns: 30px 1fr; gap: 6px; align-items: center; font-size: .8rem; color: var(--ink-2); line-height: 1.2; }
+.plano .icones svg { width: 30px; height: 30px; background: #fff; border-radius: 6px; padding: 3px; }
+.plano ul { margin: 0; padding-left: 0; list-style: none; display: grid; gap: 4px; font-size: .84rem; color: var(--ink-2); }
+.plano ul b { color: var(--ink); }
+.plano .vazio { font-size: .84rem; color: var(--ink-3); }
 .nota-acoes { font-size: .82rem; color: var(--ink-3); }
 .duas { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 22px; }
 .duas > * { min-width: 0; }
@@ -346,10 +342,9 @@ footer { padding-block: 10px 40px; color: var(--ink-3); font-size: .82rem; displ
       <h2 id="h-acoes">Como a gestão municipal pode organizar o ano</h2>
       <p id="txt-acoes"></p>
     </div>
-    <div class="acoes-grid">
-      <div class="alvo-wrap"><div class="alvo" id="alvo" role="img"></div></div>
-      <div class="acoes-lado" id="acoes-lado"></div>
-    </div>
+    <div class="cal-acoes" id="cal-acoes" role="list" aria-label="Calendário de ações por mês"></div>
+    <div class="leg-acoes" id="leg-acoes"></div>
+    <div class="planos" id="planos"></div>
     <p class="nota-acoes" id="regra-acoes"></p>
   </section>
 
