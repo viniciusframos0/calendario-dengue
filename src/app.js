@@ -1020,7 +1020,8 @@
     const res = calcular(state.cidade, state.anos);
     atual = res;
     renderCabecalho(res);
-    const secoes = document.querySelectorAll("main > section.bloco:not(#sec-resumo):not(#sec-dados)");
+    $("sec-acoes").hidden = state.cidade !== "belem";
+    const secoes = document.querySelectorAll("main > section.bloco:not(#sec-resumo):not(#sec-dados):not(#sec-acoes)");
     if (!res.r) {
       $("resumo").textContent = "";
       $("txt-resumo").textContent = "";

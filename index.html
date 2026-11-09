@@ -136,6 +136,10 @@ section.bloco {
 }
 .bloco-cab { display: grid; gap: 6px; }
 .bloco-cab p { color: var(--ink-2); }
+figure.acoes { margin: 0; display: grid; gap: 8px; max-width: 980px; }
+figure.acoes a { display: block; border: 1px solid var(--rule); border-radius: 8px; overflow: hidden; background: #fff; }
+figure.acoes img { display: block; width: 100%; height: auto; }
+figure.acoes figcaption { font-size: .8rem; color: var(--ink-3); }
 .duas { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 22px; }
 .duas > * { min-width: 0; }
 .rolagem { overflow-x: auto; min-width: 0; }
@@ -312,6 +316,20 @@ footer { padding-block: 10px 40px; color: var(--ink-3); font-size: .82rem; displ
     </div>
     <div id="aviso-dados"></div>
     <div class="resumo" id="resumo"></div>
+  </section>
+
+  <section class="bloco" id="sec-acoes" aria-labelledby="h-acoes">
+    <div class="bloco-cab">
+      <span class="eyebrow">Do resultado à ação</span>
+      <h2 id="h-acoes">Como a gestão municipal pode organizar o ano</h2>
+      <p>Os rankings viram três momentos de ação para Belém: prevenção em janeiro, quando o Rt indica que a transmissão está acelerando; reforço da assistência em fevereiro e março, quando os casos chegam ao máximo; e manutenção com comunicação contínua no restante do ano.</p>
+    </div>
+    <figure class="acoes">
+      <a href="img/acoes-belem.jpg" target="_blank" rel="noopener" title="Abrir a imagem em tamanho original">
+        <img src="img/acoes-belem.jpg" width="1536" height="1024" loading="lazy" alt="Organização dos esforços da gestão municipal contra a dengue em três círculos. No centro, janeiro: esforço na prevenção, com fumacê (nebulização espacial) e atuação reforçada dos Agentes de Endemias. No círculo do meio, fevereiro e março: reforço da assistência, com ampliação da oferta de leitos e aumento do estoque de medicamentos. No círculo externo, abril a dezembro: manutenção e comunicação, com comunicação contínua sobre prevenção e ações de rotina nas demais áreas.">
+      </a>
+      <figcaption>Proposta baseada nos resultados do ELECTRE III e IV para Belém (2023–2026). Toque na imagem para ampliar.</figcaption>
+    </figure>
   </section>
 
   <section class="bloco" aria-labelledby="h-slope">
@@ -1843,7 +1861,8 @@ footer { padding-block: 10px 40px; color: var(--ink-3); font-size: .82rem; displ
     const res = calcular(state.cidade, state.anos);
     atual = res;
     renderCabecalho(res);
-    const secoes = document.querySelectorAll("main > section.bloco:not(#sec-resumo):not(#sec-dados)");
+    $("sec-acoes").hidden = state.cidade !== "belem";
+    const secoes = document.querySelectorAll("main > section.bloco:not(#sec-resumo):not(#sec-dados):not(#sec-acoes)");
     if (!res.r) {
       $("resumo").textContent = "";
       $("txt-resumo").textContent = "";
